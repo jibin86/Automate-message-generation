@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Download Text Files</title>
+</head>
+<body>
+	<h1>Download Text Files</h1>
+	<ul>
+		{% for file in files %}
+		<li><a href="{{ url_for('download_file', filename=file) }}">{{ file }}</a></li>
+		{% endfor %}
+		<br>
+		<a href="{{ url_for('download_all_files') }}">Download All Files as ZIP</a>
+	</ul>
+</body>
+</html>
