@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Input Form</title>
+  </head>
+  <body>
+	<h2>문제가 발생했습니다. 다시 한번 확인해주세요.</h2>
+    <form name="myForm" action="/submit" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+      <label for="date">날짜:</label><br>
+      <input type="date" id="date" name="date"> 토요일을 선택해주세요. 토요일을 선택하면 일요일은 자동 선택됩니다.<br><br>
+
+      <label for="next_hw">다음 숙제:</label><br>
+      <input type="text" id="next_hw" name="next_hw"> ex. 숙제 프린트(2303**)와 일일학습지 *일차~*일차<br><br>
+
+      <label for="grade">학년:</label>
+      <select id="grade" name="grade">
+        <option value="1">1학년</option>
+        <option value="2">2학년</option>
+        <option value="3">3학년</option>
+      </select><br><br>
+
+      <label for="excel">Excel file: 엑셀 파일 첨부해주세요.</label><br><br>
+
+      <label for="excel">주간테스트:</label>
+      <input type="file" id="excel_test" name="excel_test" accept=".xlsx"><br><br>
+      <label for="excel">숙제:</label>
+      <input type="file" id="excel_hw" name="excel_hw" accept=".xlsx"><br><br>
+      <label for="excel">일일학습지:</label>
+      <input type="file" id="excel_daily" name="excel_daily" accept=".xlsx"><br><br>
+
+      <input type="submit" value="확인">
+    </form>
+
+    <script>
+      function validateForm() {
+        var date = document.forms["myForm"]["date"].value;
+        var next_hw = document.forms["myForm"]["next_hw"].value;
+        var grade = document.forms["myForm"]["grade"].value;
+        var excel_test = document.forms["myForm"]["excel_test"].value;
+        var excel_hw = document.forms["myForm"]["excel_hw"].value;
+        var excel_daily = document.forms["myForm"]["excel_daily"].value;
+        
+        if (date == "" || next_hw == "" || grade == "" || excel_test == "" || excel_hw == "" || excel_daily == "") {
+          alert("모든 필드를 채워주세요.");
+          return false;
+        }
+        return true;
+      }
+      </script>
+  </body>
+</html>
