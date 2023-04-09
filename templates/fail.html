@@ -5,7 +5,7 @@
     <title>Input Form</title>
   </head>
   <body>
-	<h2>문제가 발생했습니다. 다시 한번 확인해주세요.</h2>
+	<h2>{{error}} 문제가 발생했습니다. 다시 한번 확인해주세요.</h2>
     <form name="myForm" action="/submit" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
       <label for="date">날짜:</label><br>
       <input type="date" id="date" name="date"> 토요일을 선택해주세요. 토요일을 선택하면 일요일은 자동 선택됩니다.<br><br>

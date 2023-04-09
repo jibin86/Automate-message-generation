@@ -24,10 +24,16 @@ def submit():
         
         saturday = datetime.strptime(date, '%Y-%m-%d')   
         sunday = saturday + timedelta(days=1)
-        date_list = [(saturday.month, saturday.day), (sunday.month, sunday.day)]
+        date_list = [[str(saturday.month), str(saturday.day)], [str(sunday.month), str(sunday.day)]]
         print('date_list', date_list)
+        for i in range(2):
+            for j in range(2):
+                if len(date_list[i][j]) <= 1:
+                    date_list[i][j] = '0'+date_list[i][j]
+                
         
         read_e = read_excel.Create_Message(date_list)
+        
         
         df_hw = read_e.find_hw(excel_hw, date_list)
         df_daily = read_e.find_daily(excel_daily, date_list)
@@ -38,8 +44,8 @@ def submit():
         # folder_name = f'고{grade}_{date_list[0][0]}월_{date_list[0][1]}일_{date_list[1][0]}월_{date_list[1][1]}일_문자'
         folder_name = 'folder_text'
         read_e.save_text_files(folder_name, df_students)
-    except:
-        return render_template('fail.html')
+    except Exception as error:
+        return render_template('fail.html',error=error)
     return redirect(url_for('download_files', folder_name=folder_name))
 
 
