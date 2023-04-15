@@ -4,7 +4,7 @@ import read_excel
 from io import BytesIO
 from zipfile import ZipFile
 import os
-
+import webbrowser
 
 app = Flask(__name__)
 
@@ -18,9 +18,18 @@ def submit():
         date = request.form.get("date")
         next_hw_str = request.form.get("next_hw")
         grade = request.form.get("grade")
-        excel_test = request.files.get("excel_test")
-        excel_hw = request.files.get("excel_hw")
-        excel_daily = request.files.get("excel_daily")
+        if request.files['excel_test'].filename == '':
+            excel_test = ''
+        else:
+            excel_test = request.files.get("excel_test")
+        if request.files['excel_hw'].filename == '':
+            excel_hw = ''
+        else:
+            excel_hw = request.files.get("excel_hw")
+        if request.files['excel_daily'].filename == '':
+            excel_daily = ''
+        else:
+            excel_daily = request.files.get("excel_daily")
         
         saturday = datetime.strptime(date, '%Y-%m-%d')   
         sunday = saturday + timedelta(days=1)
@@ -33,20 +42,36 @@ def submit():
                 
         
         read_e = read_excel.Create_Message(date_list)
-        
-        
-        df_hw = read_e.find_hw(excel_hw, date_list)
-        df_daily = read_e.find_daily(excel_daily, date_list)
-        df_test, mean_score = read_e.find_test(excel_test, date_list)
-        df_students = read_e.merge_df(df_hw, df_daily, df_test, col_name='이름')
-        
-        df_students['text'] = df_students.apply(read_e.make_text, args=(date_list, mean_score, next_hw_str), axis=1)
-        # folder_name = f'고{grade}_{date_list[0][0]}월_{date_list[0][1]}일_{date_list[1][0]}월_{date_list[1][1]}일_문자'
-        folder_name = 'folder_text'
-        read_e.save_text_files(folder_name, df_students)
+        df_list = []
+        if excel_hw:
+            df_hw = read_e.find_hw(excel_hw, date_list)
+            df_list.append(df_hw)
+        else:
+            df_hw =''
+        if excel_daily:
+            df_daily = read_e.find_daily(excel_daily, date_list)
+            df_list.append(df_daily)
+        else:
+            df_daily=''
+        if excel_test:
+            df_test, mean_score = read_e.find_test(excel_test, date_list)
+            df_list.append(df_test)
+        else:
+            df_test=''
+            mean_score=''
+        if len(df_list):
+            df_students = read_e.merge_df2(df_list, '이름')
+            
+            df_students['text'] = df_students.apply(read_e.make_text, args=(date_list, mean_score, next_hw_str), axis=1)
+            # folder_name = f'고{grade}_{date_list[0][0]}월_{date_list[0][1]}일_{date_list[1][0]}월_{date_list[1][1]}일_문자'
+            folder_name = 'folder_text'
+            read_e.save_text_files(folder_name, df_students)
+            
+            return redirect(url_for('download_files', folder_name=folder_name))
+        else:
+            return render_template('fail.html',error=error)
     except Exception as error:
-        return render_template('fail.html',error=error)
-    return redirect(url_for('download_files', folder_name=folder_name))
+            return render_template('fail.html',error=error)
 
 
 @app.route('/download_zip/<folder_name>')
@@ -73,4 +98,5 @@ def download_all_files():
     return send_file(zip_filename, as_attachment=True)
 
 if __name__ == '__main__':
+    webbrowser.open_new('http://127.0.0.1:5000')
     app.run(debug=True)

@@ -62,39 +62,60 @@ class Create_Message:
         df_merge = pd.merge(df_daily, df_hw, on=col_name)
         df_merge = pd.merge(df_merge, df_test, on=col_name)
         return df_merge
+    
+    def merge_df2(self, df_list, col_name):
+        for i in range(len(df_list)):
+            df_list[i] = df_list[i].set_index(col_name)
+        df_merge = pd.concat(df_list, axis=1)
+        df_merge = df_merge.reset_index()
+        return df_merge
 
     # 일일학습지 문자
     def mk_daily_str(self, student):
-        
-        # 일일학습지
-        if len(student['daily_done']) == 0:
-            daily_str = f"일일학습지는 {' / '.join(student['daily_not_done'])} 를 미제출하였습니다."
-        elif len(student['daily_done']) <= 3:
-            daily_str = f"일일학습지는 {' / '.join(student['daily_done'])} 를 제출하였고, {' / '.join(student['daily_not_done'])} 를 미제출하였습니다."
+        # 일일학습지 존재하면:
+        if 'daily_done' in student.index:
+            # 일일학습지
+            if len(student['daily_done']) == 0:
+                daily_str = f"일일학습지는 {' / '.join(student['daily_not_done'])} 를 미제출하였습니다."
+            elif len(student['daily_done']) <= 3:
+                daily_str = f"일일학습지는 {' / '.join(student['daily_done'])} 를 제출하였고, {' / '.join(student['daily_not_done'])} 를 미제출하였습니다."
+            else:
+                daily_str = f"일일학습지는 {' / '.join(student['daily_done'])} 를 제출하였습니다."
+            return daily_str+'\n'
         else:
-            daily_str = f"일일학습지는 {' / '.join(student['daily_done'])} 를 제출하였습니다."
-        return daily_str
+            return ''
 
     # 테스트 점수 문자
-    def mk_test_str(self, student):
-        if student['점수'] == '미응시':
-            test_str = '미응시'
+    def mk_test_str(self, student, mean_score):
+        if '점수' in student.index:        
+            if student['점수'] == '미응시':
+                test_str = '미응시'
+            else:
+                test_str = str(int(round(student['점수'])))+'점'
+            result_str = f'주간테스트 점수는 {test_str} / 평균은 {mean_score}점 입니다.'
+            return result_str+'\n'
         else:
-            test_str = str(int(round(student['점수'])))+'점'
-        return test_str
+            return ''
+    
+    def mk_hw_str(self, student):
+        if '숙제 제출 여부' in student.index:
+            hw_str = f'숙제 제출 상태는 {student["숙제 제출 여부"]} 입니다.'
+            return hw_str+'\n'
+        else:
+            return ''
             
     # 문자 생성
     def make_text(self, student, date, mean_score, next_hw_str):
+        
+        hw_str = self.mk_hw_str(student)
         daily_str = self.mk_daily_str(student)
-        test_str = self.mk_test_str(student)
+        test_str = self.mk_test_str(student, mean_score)
+        
         text = f'''<대치에스학원 박래혁수학>
 
-{student['이름']} 학생의 {date[0][0]}월 {date[0][1]}일 ~ {date[1][0]}월 {date[1][1]}일 숙제 제출 및 테스트 결과입니다.
+{student['이름']}학생의 {date[0][0]}월 {date[0][1]}일 ~ {date[1][0]}월 {date[1][1]}일 숙제 제출 및 테스트 결과입니다.
 
-주간테스트 점수는 {test_str} / 평균은 {mean_score}점 입니다.
-숙제 제출 상태는 {student['숙제 제출 여부']} 입니다.
-{daily_str}
-
+{test_str}{hw_str}{daily_str}
 다음주 숙제는 {next_hw_str} 입니다.
 
 감사합니다.
