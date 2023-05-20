@@ -13,7 +13,7 @@ class Create_Message:
 
     # 특정 날짜, 데이터프레임 반환
     def get_name_date_df(self, path, date):
-        df = pd.read_excel(path, header=[1, 2])
+        df = pd.read_excel(path, header=[1, 2], engine='openpyxl')
         df = self.clean_space_df(df)
         hw_col = [col for col in df.columns if (col[0].startswith(str(date[0][0])+'월') and  str(date[0][1]) in col[0]) or (col[0].startswith(str(date[1][0])+'월') and  str(date[1][1]) in col[0])]
         # 이름 공백 버리기
@@ -43,6 +43,7 @@ class Create_Message:
         df_test.columns = df_test.columns.droplevel()
         
         # 평균 점수
+        df_test['점수'] = pd.to_numeric(df_test['점수'], errors='coerce')
         mean_score = df_test['점수'].mean()
         mean_score = int(np.round(mean_score))
         
@@ -68,6 +69,7 @@ class Create_Message:
             df_list[i] = df_list[i].set_index(col_name)
         df_merge = pd.concat(df_list, axis=1)
         df_merge = df_merge.reset_index()
+        df_merge = df_merge.rename(columns={'index':'이름'})
         return df_merge
 
     # 일일학습지 문자
